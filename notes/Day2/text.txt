@@ -1,0 +1,38 @@
+Vector Basics
+    A vector is an n-tuple, where n is the dimensionality.
+    We'll mostly be in the 3-spacem so our vectors are 3-tuples
+
+    Three basis vecotrs in 3 space:
+        i hat = <1,0,0> - x dimension
+        j hat = <0,1,0> - y dimension
+        k hat = <0,0,1> - z dimension
+
+    A vector V =  <x,y,z> = xi + yj + zk
+    These vectors can represent a lot of things
+        directions
+        positions
+        colors
+
+    A direction vector is a direction from the origin, <0,0,0>
+
+    to add two vectors, add their componets
+
+
+    to scale a vector, multiply by
+
+
+    Geometrci interpretation of vecotr addition
+
+    V + W
+
+
+    geomerically, the dot product tells us about the angle between the two 
+    vectors
+
+    cos(Theta) = (v . w)/(|v| . |w|)
+
+            |v| is sqrt(x^2 + y^2 + z^2)
+
+    cos(Theta) == 0 -> v is orthogonal to w
+
+    
