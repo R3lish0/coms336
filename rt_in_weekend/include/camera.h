@@ -9,6 +9,8 @@
 #include "vec3.h"
 #include <iostream>
 #include <fstream>
+#include <thread>
+#include <vector>
 
 
 class camera {
@@ -34,24 +36,82 @@ class camera {
 
             std::ofstream file("image.ppm");
 
+            std::string** output = new std::string*[image_height];  // Allocate rows
+                for (int i = 0; i < image_height; ++i) {
+                output[i] = new std::string[image_width];  // Allocate columns for each row
+            }
+
+            std::vector<std::thread> threads;
 
 
             file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-            for (int j = 0; j < image_height; j++) {
-                std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+            for (int j = 0; j < image_height; j+=5) {
+                std::clog << "\rScanlines left: " << (image_height - j) << std::flush;
+                for(int i = 0; i < 5; i++)
+                {
+                    int thread_target = i+j;
+                    threads.emplace_back(([this, &world, output, thread_target]() 
+                                { render_line(world, output, thread_target); }));
+                    for(std::thread& t : threads) {
+                        t.join();
+                        threads.erase(threads.begin());
+                    }
+                }
+
+
+            }
+
+
+
+//            for (int j = 0; j < image_height; j++) {
+//                int thread_target = j;
+//                threads.emplace_back(([this, &world, output, thread_target]() 
+//                                { render_line(world, output, thread_target); }));
+//                }
+//
+//
+//            int scanlines = image_height;
+//            for(std::thread& t : threads) {
+//                std::clog << "\rScanlines left: " << (scanlines--) << std::flush;
+//                t.join();
+//                }
+
+
+
+
+
+
+
+            
+
+            for (int i = 0; i < image_height; i++)
+            {
+                for(int j = 0; j < image_width; j++)
+                {
+                    file << output[i][j];
+                }
+            }
+
+
+            std::clog << "\nDone!\n";
+            file.close();
+        }
+
+
+        void render_line(const hittable& world, std::string **output, int j)
+        {
                 for (int i = 0; i < image_width; i++) {
                     color pixel_color(0,0,0);
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
                         ray r = get_ray(i,j);
                         pixel_color += ray_color(r, max_depth, world);
                     }
-                    write_color(file, pixel_samples_scale * pixel_color);
+                    output[j][i] = write_color(pixel_samples_scale * pixel_color);
                 }
-            }
-            std::clog << "\nDone!\n";
-            file.close();
         }
+
+        
 
 
     private:
@@ -126,6 +186,7 @@ class camera {
             return vec3(random_double() - 0.5, random_double() - 0.5, 0);
         }
 
+        
 
         
         point3 defocus_disk_sample() const {
