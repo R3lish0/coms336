@@ -7,6 +7,9 @@
 #include "ray.h"
 #include "color.h"
 #include "vec3.h"
+#include "threadpool.h"
+
+
 #include <iostream>
 #include <fstream>
 #include <thread>
@@ -44,37 +47,20 @@ class camera {
             std::vector<std::thread> threads;
 
 
-            unsigned int y_threads;
-
-            y_threads = image_height / num_threads;
-
-
-
-
-
+            ThreadPool pool(num_threads);
 
             file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-            for (int j = 0; j < image_height;) {
+            for (int j = 0; j < image_height; j++) {
                 //Progress updater
-                std::clog << "\rScanlines left: " << (image_height-j) << " " << std::flush;
-
+                
                 //Create a thread dependent on batch size
-                for(int i = 0; i < y_threads && j < image_height; i++)
-                {
-                    int assigned_line = j;
-                    threads.emplace_back(([this, &world, output, assigned_line]() 
-                                { render_line(world, output, assigned_line); }));
-                    j++;
-                }
-
-                //clear for next batch
-                for(std::thread& t : threads) {
-                    t.join();
-                }
-                threads.clear();
+                int assigned_line = j;
+                pool.enqueue(([this, &world, output, assigned_line]() 
+                        { render_line(world, output, assigned_line); }));
             }
 
+            pool.waitUntilDone();
 
 
 //            for (int j = 0; j < image_height; j++) {
