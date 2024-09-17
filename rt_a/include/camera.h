@@ -41,22 +41,17 @@ class camera {
                 output[i] = new std::string[image_width];  // Allocate columns for each row
             }
 
-            std::vector<std::thread> threads;
-
 
             file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-            for (int j = 0; j < image_height; j+=5) {
-                std::clog << "\rScanlines left: " << (image_height - j) << " " << std::flush;
-                for(int i = 0; i < 5; i++)
+            for (int j = 0; j < image_height;) {
                 {
-                    int thread_target = i+j;
-                    threads.emplace_back(([this, &world, output, thread_target]() 
-                                { render_line(world, output, thread_target); }));
-                    for(std::thread& t : threads) {
-                        t.join();
-                    }
-                    threads.clear();
+                    //Progress updater
+                    std::clog << "\rScanlines left: " << (image_height-j) << " " << std::flush;
+
+                    int thread_target = j;
+                    render_line(world, output, thread_target);
+                    j++;
                 }
 
 
@@ -108,16 +103,9 @@ class camera {
                     color color_arr[samples_per_pixel];
                     for (int sample = 0; sample < samples_per_pixel; sample++) 
                     {
-                        sample_threads
-                            .emplace_back(([this, &world, i, j, sample, &color_arr]() 
-                                { sample_color(world, i, j, sample, color_arr); }));
+                        sample_color(world, i, j, sample, color_arr); 
 
                     }
-                    for(std::thread& t : sample_threads) {
-                        t.join();
-                    }
-
-                    sample_threads.clear();
 
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
                         pixel_color += color_arr[sample];
@@ -132,7 +120,7 @@ class camera {
         {
 
             ray r = get_ray(i,j);
-            color_arr[sample] =  ray_color(r, max_depth, world);
+            ray_color(r, max_depth, world);
         }
 
         

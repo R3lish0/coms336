@@ -5,9 +5,32 @@
 #include "../include/camera.h"
 #include "../include/material.h"
 
+#include <iostream>
+#include <thread>
+
 
 
 int main() {
+
+    // Get starting timepoint
+    auto start = std::chrono::high_resolution_clock::now();
+
+    unsigned int num_threads = std::thread::hardware_concurrency();
+
+    if (num_threads == 0) {
+        std::cout << "Unable to determine number of threads\n";
+    }
+    else
+    {
+        std::cout << "We able to rip:" << num_threads << " threads!!\n";
+    }
+
+
+    
+    
+
+
+
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
@@ -53,7 +76,7 @@ int main() {
     camera cam;
 
     cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1200;
+    cam.image_width       = 800;
     cam.samples_per_pixel = 20;
     cam.max_depth         = 50;
 
@@ -65,5 +88,20 @@ int main() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world);
+    cam.render(world, num_threads);
+
+    // Get ending timepoint
+    auto stop = std::chrono::high_resolution_clock::now();
+ 
+    // Get duration. Substart timepoints to 
+    // get duration. To cast it to proper unit
+    // use duration cast method
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+ 
+    std::cout << "Time taken by function: "
+         << duration.count() << " microseconds" << std::endl;
+ 
+    return 0;
+
+
 }

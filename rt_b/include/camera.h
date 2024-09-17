@@ -31,7 +31,7 @@ class camera {
 
 
         /* Public Camera Parameters Here */
-        void render(const hittable& world) {
+        void render(const hittable& world, int num_threads) {
             initialize();
 
             std::ofstream file("image.ppm");
@@ -44,22 +44,35 @@ class camera {
             std::vector<std::thread> threads;
 
 
+            unsigned int y_threads;
+
+            y_threads = image_height / num_threads;
+
+
+
+
+
+
             file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-            for (int j = 0; j < image_height; j+=5) {
-                std::clog << "\rScanlines left: " << (image_height - j) << " " << std::flush;
-                for(int i = 0; i < 5; i++)
+            for (int j = 0; j < image_height;) {
+                //Progress updater
+                std::clog << "\rScanlines left: " << (image_height-j) << " " << std::flush;
+
+                //Create a thread dependent on batch size
+                for(int i = 0; i < y_threads && j < image_height; i++)
                 {
-                    int thread_target = i+j;
-                    threads.emplace_back(([this, &world, output, thread_target]() 
-                                { render_line(world, output, thread_target); }));
-                    for(std::thread& t : threads) {
-                        t.join();
-                    }
-                    threads.clear();
+                    int assigned_line = j;
+                    threads.emplace_back(([this, &world, output, assigned_line]() 
+                                { render_line(world, output, assigned_line); }));
+                    j++;
                 }
 
-
+                //clear for next batch
+                for(std::thread& t : threads) {
+                    t.join();
+                }
+                threads.clear();
             }
 
 
@@ -102,22 +115,25 @@ class camera {
         void render_line(const hittable& world, std::string **output, int j)
         {
 
-                std::vector<std::thread> sample_threads;
+                //std::vector<std::thread> sample_threads;
                 for (int i = 0; i < image_width; i++) {
                     color pixel_color(0,0,0);
                     color color_arr[samples_per_pixel];
                     for (int sample = 0; sample < samples_per_pixel; sample++) 
                     {
-                        sample_threads
-                            .emplace_back(([this, &world, i, j, sample, &color_arr]() 
-                                { sample_color(world, i, j, sample, color_arr); }));
+
+                  
+                        sample_color(world, i, j, sample, color_arr);
+                        //sample_threads
+                        //    .emplace_back(([this, &world, i, j, sample, &color_arr]() 
+                        //        { sample_color(world, i, j, sample, color_arr); }));
 
                     }
-                    for(std::thread& t : sample_threads) {
-                        t.join();
-                    }
+                 //   for(std::thread& t : sample_threads) {
+                 //       t.join();
+                 //   }
 
-                    sample_threads.clear();
+                 //   sample_threads.clear();
 
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
                         pixel_color += color_arr[sample];
