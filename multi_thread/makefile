@@ -29,3 +29,4 @@ bench.o: $(SRC) ./include/rtweekend.h
 .PHONY: clean
 clean:
 	rm -f ./make/*
+	rm image.ppm

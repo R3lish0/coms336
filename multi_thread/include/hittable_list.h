@@ -1,6 +1,7 @@
 #ifndef HITTABLE_LIST_H
 #define HITTABLE_LIST_H
 
+#include "aabb.h"
 #include "hittable.h"
 #include "rtweekend.h"
 #include "interval.h"
