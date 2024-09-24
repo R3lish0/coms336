@@ -79,18 +79,18 @@ int main() {
 
     camera cam;
 
-    cam.aspect_ratio      = 21.0 / 9.0;
-    cam.image_width       = 3600;
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 1200;
     cam.samples_per_pixel = 500;
     cam.max_depth         = 20;
 
-    cam.vfov     = 40;
+    cam.vfov     = 70;
     cam.lookfrom = point3(13,2,3);
     cam.lookat   = point3(0,0,0);
     cam.vup      = vec3(0,1,0);
 
-    cam.defocus_angle = 0.9;
-    cam.focus_dist    = 15.0;
+    cam.defocus_angle = 0.2;
+    cam.focus_dist    = 10.0;
 
     cam.render(world, num_threads);
 
@@ -100,10 +100,10 @@ int main() {
     // Get duration. Substart timepoints to 
     // get duration. To cast it to proper unit
     // use duration cast method
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    auto duration = std::chrono::duration_cast<std::chrono::minutes>(stop - start);
  
     std::cout << "Time taken by function: "
-         << duration.count() << " microseconds" << std::endl;
+         << duration.count() << " minutes" << std::endl;
  
     return 0;
 

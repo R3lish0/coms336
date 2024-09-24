@@ -21,6 +21,10 @@ main.o: $(SRC) ./include/rtweekend.h
 bench: SRC = ./src/bench.cc
 bench: $(TARGET)
 
+.PHONY: mac
+mac: CXX = g++-14
+mac: $(TARGET)
+
 # Rule for compiling the object file for bench
 bench.o: $(SRC) ./include/rtweekend.h
 	$(CXX) $(CXXFLAGS) -c $(SRC) -o ./make/bench.o
