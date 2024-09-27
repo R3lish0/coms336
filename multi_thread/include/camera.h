@@ -2,8 +2,8 @@
 #define CAMERA_H
 
 
-#include "material.h"
 #include "hittable.h"
+#include "material.h"
 #include "ray.h"
 #include "color.h"
 #include "vec3.h"
@@ -22,7 +22,7 @@ class camera {
         int image_width = 100;      //rendered image width in pixel count
         int samples_per_pixel = 10; //count of random samples for each pixel
         int max_depth = 10;         //maximum number of ray bounces into scene
-        
+
 
         double  vfov     = 90;
         point3  lookfrom = point3(0,0,0);
@@ -52,29 +52,12 @@ class camera {
             file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
             for (int j = 0; j < image_height; j++) {
-                //Progress updater
-                
-                //Create a thread dependent on batch size
                 int assigned_line = j;
-                pool.enqueue(([this, &world, output, assigned_line]() 
+                pool.enqueue(([this, &world, output, assigned_line]()
                         { render_line(world, output, assigned_line); }));
             }
 
             pool.waitUntilDone();
-
-
-//            for (int j = 0; j < image_height; j++) {
-//                int thread_target = j;
-//                threads.emplace_back(([this, &world, output, thread_target]() 
-//                                { render_line(world, output, thread_target); }));
-//                }
-//
-//
-//            int scanlines = image_height;
-//            for(std::thread& t : threads) {
-//                std::clog << "\rScanlines left: " << (scanlines--) << std::flush;
-//                t.join();
-//                }
 
             for (int i = 0; i < image_height; i++)
             {
@@ -93,25 +76,16 @@ class camera {
         void render_line(const hittable& world, std::string **output, int j)
         {
 
-                //std::vector<std::thread> sample_threads;
                 for (int i = 0; i < image_width; i++) {
                     color pixel_color(0,0,0);
                     color color_arr[samples_per_pixel];
-                    for (int sample = 0; sample < samples_per_pixel; sample++) 
+                    for (int sample = 0; sample < samples_per_pixel; sample++)
                     {
 
-                  
+
                         sample_color(world, i, j, sample, color_arr);
-                        //sample_threads
-                        //    .emplace_back(([this, &world, i, j, sample, &color_arr]() 
-                        //        { sample_color(world, i, j, sample, color_arr); }));
 
                     }
-                 //   for(std::thread& t : sample_threads) {
-                 //       t.join();
-                 //   }
-
-                 //   sample_threads.clear();
 
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
                         pixel_color += color_arr[sample];
@@ -129,7 +103,7 @@ class camera {
             color_arr[sample] =  ray_color(r, max_depth, world);
         }
 
-        
+
 
 
     private:
@@ -182,7 +156,7 @@ class camera {
             // Calculate the camera defocus disk basis vectors.
             auto defocus_radius = focus_dist * std::tan(degrees_to_radians(defocus_angle / 2));
             defocus_disk_u = u * defocus_radius;
-            defocus_disk_v = v * defocus_radius; 
+            defocus_disk_v = v * defocus_radius;
         }
 
         ray get_ray(int i, int j) const {
@@ -205,9 +179,9 @@ class camera {
             return vec3(random_double() - 0.5, random_double() - 0.5, 0);
         }
 
-        
 
-        
+
+
         point3 defocus_disk_sample() const {
             // Returns a random point in the camera defocus disk.
             auto p = random_in_unit_disk();

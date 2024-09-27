@@ -1,6 +1,7 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -I./include
+CXXFLAGS = -I./include -std=c++17
+
 
 # Default source file
 SRC = ./src/main.cc

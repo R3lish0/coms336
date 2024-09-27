@@ -1,0 +1,16 @@
+[
+  {
+    "arguments": [
+      "/usr/local/bin/g++",
+      "-I./include",
+      "-std=c++17",
+      "-c",
+      "-o",
+      "./make/main.o",
+      "./src/main.cc"
+    ],
+    "directory": "/Users/Eli/Documents/computer_science/coms336/multi_thread",
+    "file": "/Users/Eli/Documents/computer_science/coms336/multi_thread/src/main.cc",
+    "output": "/Users/Eli/Documents/computer_science/coms336/multi_thread/make/main.o"
+  }
+]

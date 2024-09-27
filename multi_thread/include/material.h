@@ -4,6 +4,7 @@
 #include "color.h"
 #include "ray.h"
 #include "hittable.h"
+#include "texture.h"
 
 
 
@@ -17,30 +18,27 @@ class material {
 };
 
 
+
 class lambertian : public material {
-    public:
-        lambertian(const color& albedo) : albedo(albedo) {}
+  public:
+    lambertian(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}
+    lambertian(shared_ptr<texture> tex) : tex(tex) {}
 
-        bool scatter(const ray& r_in, const hit_record& rec, color& attenuation,
-                ray& scattered)
-        const override {
-            //have potential to be absorbed?
-            auto scatter_direction = rec.normal + random_unit_vector();
+    bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
+    const override {
+        auto scatter_direction = rec.normal + random_unit_vector();
 
-            if(scatter_direction.near_zero())
-            {
-                //sets to reflect in normal direction
-                scatter_direction = rec.normal;
-            }
+        // Catch degenerate scatter direction
+        if (scatter_direction.near_zero())
+            scatter_direction = rec.normal;
 
+        scattered = ray(rec.p, scatter_direction, r_in.time());
+        attenuation = tex->value(rec.u, rec.v, rec.p);
+        return true;
+    }
 
-            scattered = ray(rec.p, scatter_direction, r_in.time());
-            attenuation = albedo;
-            return true;
-        }
-
-    private:
-        color albedo;
+  private:
+    shared_ptr<texture> tex;
 };
 
 
@@ -71,7 +69,7 @@ class dielectric : public material {
     public:
         dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-        bool scatter(const ray& r_in, const hit_record& rec, 
+        bool scatter(const ray& r_in, const hit_record& rec,
                 color& attenuation, ray& scattered)
         const override {
             attenuation = color(1.0,1.0,1.0);
