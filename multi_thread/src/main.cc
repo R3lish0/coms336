@@ -1,6 +1,7 @@
 #include "../include/rtweekend.h"
 
 #include "../include/hittable_list.h"
+#include "../include/quad.h"
 #include "../include/sphere.h"
 #include "../include/camera.h"
 #include "../include/material.h"
@@ -9,6 +10,45 @@
 
 #include <iostream>
 #include <thread>
+
+void quads(int num_threads) {
+    hittable_list world;
+
+    // Materials
+    auto earth_texture = make_shared<image_texture>("obama_sphere.jpg");
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto left_red     = make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    auto back_green   = make_shared<lambertian>(color(0.2, 1.0, 0.2));
+    auto right_blue   = make_shared<lambertian>(color(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
+    auto lower_teal   = make_shared<lambertian>(color(0.2, 0.8, 0.8));
+
+    // Quads
+    world.add(make_shared<quad>(point3(-3,-2, 5), vec3(0, 0,-4), vec3(0, 4, 0), left_red));
+    world.add(make_shared<quad>(point3(-2,-2, 0), vec3(4, 0, 0), vec3(0, 4, 0), earth_surface));
+    world.add(make_shared<quad>(point3( 3,-2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue));
+    world.add(make_shared<quad>(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange));
+    world.add(make_shared<quad>(point3(-2,-3, 5), vec3(4, 0, 0), vec3(0, 0,-4), lower_teal));
+
+    camera cam;
+
+    cam.aspect_ratio      = 2;
+    cam.image_width       = 1200;
+    cam.samples_per_pixel = 500;
+    cam.max_depth         = 1000;
+
+    cam.vfov     = 80;
+    cam.lookfrom = point3(0,0,9);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, num_threads);
+}
+
+
+
 
 void bouncing_spheres(int num_threads) {
     hittable_list world;
@@ -104,24 +144,48 @@ void checkered_spheres(int num_threads) {
 
 void earth(int num_threads) {
     auto earth_texture = make_shared<image_texture>("obama_sphere.jpg");
-        auto earth_surface = make_shared<lambertian>(earth_texture);
-        auto globe = make_shared<sphere>(point3(0,0,0), 5, earth_surface);
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto globe = make_shared<sphere>(point3(0,0,0), 5, earth_surface);
 
-        camera cam;
+    camera cam;
 
-        cam.aspect_ratio      = 16.0 / 9.0;
-        cam.image_width       = 1200;
-        cam.samples_per_pixel = 500;
-        cam.max_depth         = 10000;
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 1200;
+    cam.samples_per_pixel = 500;
+    cam.max_depth         = 10000;
 
-        cam.vfov     = 20;
-        cam.lookfrom = point3(35,0,2);
-        cam.lookat   = point3(0,0,0);
-        cam.vup      = vec3(0,1,0);
+    cam.vfov     = 20;
+    cam.lookfrom = point3(35,0,2);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
 
-        cam.defocus_angle = 0;
+    cam.defocus_angle = 0;
 
-        cam.render(hittable_list(globe), num_threads);
+    cam.render(hittable_list(globe), num_threads);
+}
+
+void perlin_spheres(int num_threads) {
+    hittable_list world;
+
+    auto pertext = make_shared<noise_texture>(4);
+    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(pertext)));
+    world.add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(pertext)));
+
+    camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 50;
+    cam.max_depth         = 1000;
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(13,2,3);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world, num_threads);
 }
 
 
@@ -141,10 +205,12 @@ int main() {
     }
 
 
-    switch(3) {
-        case 1: bouncing_spheres(num_threads); break;
+    switch(5) {
+        case 1: bouncing_spheres(num_threads);  break;
         case 2: checkered_spheres(num_threads); break;
-        case 3: earth(num_threads);                        break;
+        case 3: earth(num_threads);             break;
+        case 4: perlin_spheres(num_threads);    break;
+        case 5: quads(num_threads);             break;
     }
 
 
