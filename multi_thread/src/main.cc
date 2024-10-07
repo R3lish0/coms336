@@ -419,7 +419,7 @@ int main() {
         case 6: simple_light(num_threads);      break;
         case 7: cornell_box(num_threads);       break;
         case 8: cornell_smoke(num_threads);     break;
-        case 9:  final_scene(800, 5000, 40, num_threads); break;
+        case 9:  final_scene(800, 100, 40, num_threads); break;
         default: final_scene(400,   250,  4, num_threads); break;
     }
 

@@ -18,11 +18,16 @@
 
 class camera {
     public:
-        double aspect_ratio = 1.0;  //ratio of image width over height
-        int image_width = 100;      //rendered image width in pixel count
-        int samples_per_pixel = 10; //count of random samples for each pixel
-        int max_depth = 10;         //maximum number of ray bounces into scene
-        color  background;               // Scene background color
+        //ratio of image width over height
+        double aspect_ratio = 1.0;
+        //rendered image width in pixel count
+        int image_width = 100;
+        //count of random samples for each pixel
+        int samples_per_pixel = 10;
+        //maximum number of ray bounces into scene
+        int max_depth = 10;
+        // Scene background color
+        color  background;
 
 
         double  vfov     = 90;

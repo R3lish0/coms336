@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -I./include -std=c++17 -O3
+CXXFLAGS = -I./include -std=c++17
 
 
 # Default source file
